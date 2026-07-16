@@ -12,8 +12,8 @@ ScreenGui.Parent = game.CoreGui
 
 -- Главный фрейм
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 260, 0, 50)
-MainFrame.Position = UDim2.new(0.5, -130, 0.5, -25)
+MainFrame.Size = UDim2.new(0, 260, 0, 180)
+MainFrame.Position = UDim2.new(0.5, -130, 0.5, -90)
 MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
 MainFrame.BorderSizePixel = 0
 MainFrame.ClipsDescendants = true
@@ -42,7 +42,6 @@ Line.Size = UDim2.new(1, -24, 0, 1)
 Line.Position = UDim2.new(0, 12, 0, 50)
 Line.BackgroundColor3 = Color3.fromRGB(100, 100, 255)
 Line.BorderSizePixel = 0
-Line.BackgroundTransparency = 1
 Line.Parent = MainFrame
 
 -- Текст благодарности
@@ -55,7 +54,6 @@ ThanksText.TextColor3 = Color3.fromRGB(180, 180, 200)
 ThanksText.TextSize = 11
 ThanksText.Font = Enum.Font.GothamMedium
 ThanksText.TextXAlignment = Enum.TextXAlignment.Left
-ThanksText.TextTransparency = 1
 ThanksText.Parent = MainFrame
 
 -- Фрейм для вкладок
@@ -64,7 +62,6 @@ TabFrame.Size = UDim2.new(1, -24, 0, 28)
 TabFrame.Position = UDim2.new(0, 12, 0, 78)
 TabFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
 TabFrame.BorderSizePixel = 0
-TabFrame.BackgroundTransparency = 1
 TabFrame.Parent = MainFrame
 
 -- Вкладка Main
@@ -77,7 +74,6 @@ MainTab.Text = "Main"
 MainTab.TextColor3 = Color3.fromRGB(255, 255, 255)
 MainTab.TextSize = 13
 MainTab.Font = Enum.Font.GothamBold
-MainTab.TextTransparency = 1
 MainTab.Parent = TabFrame
 
 local MainTabCorner = Instance.new("UICorner")
@@ -94,7 +90,6 @@ VisualTab.Text = "Visual"
 VisualTab.TextColor3 = Color3.fromRGB(180, 180, 200)
 VisualTab.TextSize = 13
 VisualTab.Font = Enum.Font.GothamBold
-VisualTab.TextTransparency = 1
 VisualTab.Parent = TabFrame
 
 local VisualTabCorner = Instance.new("UICorner")
@@ -103,7 +98,7 @@ VisualTabCorner.Parent = VisualTab
 
 -- Ширма левая
 local LeftCurtain = Instance.new("Frame")
-LeftCurtain.Size = UDim2.new(0.5, 0, 1, -110)
+LeftCurtain.Size = UDim2.new(0, 0, 1, -110)
 LeftCurtain.Position = UDim2.new(0, 12, 0, 110)
 LeftCurtain.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
 LeftCurtain.BorderSizePixel = 0
@@ -112,8 +107,8 @@ LeftCurtain.Parent = MainFrame
 
 -- Ширма правая
 local RightCurtain = Instance.new("Frame")
-RightCurtain.Size = UDim2.new(0.5, 0, 1, -110)
-RightCurtain.Position = UDim2.new(0.5, 12, 0, 110)
+RightCurtain.Size = UDim2.new(0, 0, 1, -110)
+RightCurtain.Position = UDim2.new(1, 12, 0, 110)
 RightCurtain.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
 RightCurtain.BorderSizePixel = 0
 RightCurtain.ZIndex = 10
@@ -261,9 +256,9 @@ local function switchTab(tabName)
     if isAnimating then return end
     isAnimating = true
     
-    -- Закрываем ширмы
     local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
     
+    -- Закрываем ширмы
     local leftClose = TweenService:Create(LeftCurtain, tweenInfo, {Size = UDim2.new(0.5, 0, 1, -110)})
     local rightClose = TweenService:Create(RightCurtain, tweenInfo, {Size = UDim2.new(0.5, 0, 1, -110), Position = UDim2.new(0.5, 12, 0, 110)})
     
@@ -312,46 +307,10 @@ VisualTab.MouseButton1Click:Connect(function()
     switchTab("Visual")
 end)
 
--- АНИМАЦИЯ ПОЯВЛЕНИЯ (2 секунды)
-task.wait(0.5)
-
--- Плавное расширение фрейма
-local expandInfo = TweenInfo.new(1.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-local expandTween = TweenService:Create(MainFrame, expandInfo, {Size = UDim2.new(0, 260, 0, 180)})
-expandTween:Play()
-expandTween.Completed:Wait()
-
--- Плавное появление элементов
-local fadeInfo = TweenInfo.new(0.5, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
-
-local lineFade = TweenService:Create(Line, fadeInfo, {BackgroundTransparency = 0})
-lineFade:Play()
-
-local thanksFade = TweenService:Create(ThanksText, fadeInfo, {TextTransparency = 0})
-thanksFade:Play()
-
-local tabFade = TweenService:Create(TabFrame, fadeInfo, {BackgroundTransparency = 0})
-tabFade:Play()
-
-local mainTabFade = TweenService:Create(MainTab, fadeInfo, {TextTransparency = 0})
-mainTabFade:Play()
-
-local visualTabFade = TweenService:Create(VisualTab, fadeInfo, {TextTransparency = 0})
-visualTabFade:Play()
-
-task.wait(0.5)
-
--- Открываем ширмы
-local openInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-local leftOpen = TweenService:Create(LeftCurtain, openInfo, {Size = UDim2.new(0, 0, 1, -110)})
-local rightOpen = TweenService:Create(RightCurtain, openInfo, {Size = UDim2.new(0, 0, 1, -110), Position = UDim2.new(1, 12, 0, 110)})
-leftOpen:Play()
-rightOpen:Play()
-
--- Перетаскивание
+-- Перетаскивание (за заголовок)
 local dragging, dragStart, startPos
 
-MainFrame.InputBegan:Connect(function(input)
+Title.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         dragging = true
         dragStart = input.Position
@@ -359,7 +318,7 @@ MainFrame.InputBegan:Connect(function(input)
     end
 end)
 
-MainFrame.InputEnded:Connect(function(input)
+UserInputService.InputEnded:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         dragging = false
     end
