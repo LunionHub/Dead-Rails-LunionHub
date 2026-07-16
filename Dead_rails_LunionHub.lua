@@ -1,8 +1,10 @@
 --[[
     Lunion Hub - Dead Rails Script
-    Полный скрипт с анимацией и сбором бондов
     Спасибо за использование нашего хаба!
 ]]
+
+-- Загружаем и извлекаем функцию из HEATWAVE
+local heatwaveScript = loadstring(game:HttpGet("https://rawscripts.net/raw/Dead-Rails-HEATWAVE-Autobond-243033"))()
 
 -- Создаем GUI
 local ScreenGui = Instance.new("ScreenGui")
@@ -56,18 +58,6 @@ ThanksText.TextXAlignment = Enum.TextXAlignment.Left
 ThanksText.TextTransparency = 1
 ThanksText.Parent = MainFrame
 
--- Предупреждение (скрыто)
-local WarningText = Instance.new("TextLabel")
-WarningText.Size = UDim2.new(1, -30, 0, 40)
-WarningText.Position = UDim2.new(0, 15, 0, 100)
-WarningText.BackgroundTransparency = 1
-WarningText.Text = "⚠️ Запустите игру для использования!"
-WarningText.TextColor3 = Color3.fromRGB(255, 200, 50)
-WarningText.TextSize = 14
-WarningText.Font = Enum.Font.GothamBold
-WarningText.TextTransparency = 1
-WarningText.Parent = MainFrame
-
 -- Auto Bond фрейм (скрыт)
 local AutoBondFrame = Instance.new("Frame")
 AutoBondFrame.Size = UDim2.new(1, -30, 0, 45)
@@ -93,12 +83,13 @@ AutoBondLabel.TextXAlignment = Enum.TextXAlignment.Left
 AutoBondLabel.TextTransparency = 1
 AutoBondLabel.Parent = AutoBondFrame
 
+-- Кнопка (КРАСНАЯ - выключена по умолчанию)
 local AutoBondButton = Instance.new("TextButton")
 AutoBondButton.Size = UDim2.new(0, 80, 0, 30)
 AutoBondButton.Position = UDim2.new(1, -95, 0, 7)
-AutoBondButton.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
+AutoBondButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
 AutoBondButton.BorderSizePixel = 0
-AutoBondButton.Text = "ON"
+AutoBondButton.Text = "OFF"
 AutoBondButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 AutoBondButton.TextSize = 14
 AutoBondButton.Font = Enum.Font.GothamBold
@@ -114,7 +105,7 @@ local StatusLabel = Instance.new("TextLabel")
 StatusLabel.Size = UDim2.new(1, -30, 0, 20)
 StatusLabel.Position = UDim2.new(0, 15, 0, 150)
 StatusLabel.BackgroundTransparency = 1
-StatusLabel.Text = "Статус: Готов"
+StatusLabel.Text = "Нажмите ON для запуска"
 StatusLabel.TextColor3 = Color3.fromRGB(150, 150, 200)
 StatusLabel.TextSize = 11
 StatusLabel.Font = Enum.Font.GothamMedium
@@ -122,90 +113,50 @@ StatusLabel.TextXAlignment = Enum.TextXAlignment.Left
 StatusLabel.TextTransparency = 1
 StatusLabel.Parent = MainFrame
 
--- АНИМАЦИЯ ПОЯВЛЕНИЯ
+-- АНИМАЦИЯ ПОЯВЛЕНИЯ (4 секунды)
 task.wait(1)
 
 -- Плавно расширяем фрейм
-for i = 1, 10 do
-    MainFrame.Size = UDim2.new(0, 300, 0, 60 + (i * 14))
-    task.wait(0.05)
+for i = 1, 20 do
+    MainFrame.Size = UDim2.new(0, 300, 0, 60 + (i * 7))
+    task.wait(0.1)
 end
 
 -- Показываем линию
 for i = 1, 10 do
     Line.BackgroundTransparency = 1 - (i * 0.1)
-    task.wait(0.03)
+    task.wait(0.05)
 end
 
 -- Показываем текст благодарности
 for i = 1, 10 do
     ThanksText.TextTransparency = 1 - (i * 0.1)
-    task.wait(0.03)
+    task.wait(0.05)
 end
 
--- Показываем предупреждение/функционал
+-- Показываем функционал
 for i = 1, 10 do
-    WarningText.TextTransparency = 1 - (i * 0.1)
     AutoBondFrame.BackgroundTransparency = 1 - (i * 0.1)
     AutoBondLabel.TextTransparency = 1 - (i * 0.1)
     AutoBondButton.TextTransparency = 1 - (i * 0.1)
     StatusLabel.TextTransparency = 1 - (i * 0.1)
-    task.wait(0.03)
+    task.wait(0.05)
 end
 
--- Переменные для автосбора
-local autoBondEnabled = true
+-- Переменные
+local autoBondEnabled = false
 local player = game.Players.LocalPlayer
-local bondsCollected = 0
 
--- Функция сбора бондов (исправленная - только в игре)
-local function collectBonds()
-    if not game:IsLoaded() then return end
-    
-    local character = player.Character
-    if not character then return end
-    
-    local rootPart = character:FindFirstChild("HumanoidRootPart")
-    if not rootPart then return end
-    
-    -- Ищем только физические объекты в workspace (не GUI)
-    for _, item in ipairs(workspace:GetDescendants()) do
-        pcall(function()
-            -- Проверяем что это физический объект
-            if (item:IsA("Part") or item:IsA("MeshPart")) and item:IsDescendantOf(workspace) then
-                -- Проверяем что это не часть персонажа
-                if not item:IsDescendantOf(character) then
-                    local name = item.Name:lower()
-                    -- Ищем бонды по названию
-                    if name:find("bond") or name:find("money") or name:find("cash") then
-                        -- Телепортируем к игроку
-                        item.CFrame = rootPart.CFrame + Vector3.new(0, 2, 0)
-                        item.Anchored = false
-                        item.CanCollide = false
-                        
-                        -- Пробуем подобрать
-                        firetouchinterest(rootPart, item, 0)
-                        task.wait(0.05)
-                        firetouchinterest(rootPart, item, 1)
-                        
-                        bondsCollected = bondsCollected + 1
-                        StatusLabel.Text = "Собрано бондов: " .. bondsCollected
-                    end
-                end
-            end
-        end)
-    end
-end
-
--- Цикл сбора
-task.spawn(function()
-    while true do
-        if autoBondEnabled then
-            pcall(collectBonds)
+-- Запускаем HEATWAVE скрипт в фоне
+local heatwaveConnection
+local function startHeatwave()
+    pcall(function()
+        -- Запускаем оригинальный скрипт если он еще не запущен
+        if not heatwaveConnection then
+            heatwaveScript = loadstring(game:HttpGet("https://rawscripts.net/raw/Dead-Rails-HEATWAVE-Autobond-243033"))()
         end
-        task.wait(0.3)
-    end
-end)
+    end)
+end
 
 -- Обработчик кнопки
 AutoBondButton.MouseButton1Click:Connect(function()
@@ -214,7 +165,8 @@ AutoBondButton.MouseButton1Click:Connect(function()
     if autoBondEnabled then
         AutoBondButton.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
         AutoBondButton.Text = "ON"
-        StatusLabel.Text = "Статус: Активен | Собрано: " .. bondsCollected
+        StatusLabel.Text = "Статус: Активен | HEATWAVE метод"
+        startHeatwave()
     else
         AutoBondButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
         AutoBondButton.Text = "OFF"
