@@ -1,5 +1,5 @@
 --[[
-    Lunion Hub - Dead Rails Script (Optimized Auto-Collect)
+    Lunion Hub - Dead Rails Script (Fixed Drag & Farm)
     Спасибо за использование нашего хаба!
 ]]
 
@@ -7,14 +7,17 @@
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "LunionHub"
 ScreenGui.Parent = game.CoreGui
+ScreenGui.ResetOnSpawn = false
 
--- Главный фрейм
+-- Главный фрейм (Хаб меню)
 local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.new(0, 300, 0, 60)
 MainFrame.Position = UDim2.new(0.5, -150, 0.5, -30)
 MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
 MainFrame.BorderSizePixel = 0
 MainFrame.ClipsDescendants = true
+MainFrame.Active = true -- Делает объект активным для мыши
+MainFrame.Selectable = true
 MainFrame.Parent = ScreenGui
 
 local UICorner = Instance.new("UICorner")
@@ -33,7 +36,7 @@ Title.Font = Enum.Font.GothamBold
 Title.TextXAlignment = Enum.TextXAlignment.Center
 Title.Parent = MainFrame
 
--- Линия
+-- Линия разделения
 local Line = Instance.new("Frame")
 Line.Size = UDim2.new(1, -30, 0, 1)
 Line.Position = UDim2.new(0, 15, 0, 60)
@@ -55,7 +58,7 @@ ThanksText.TextXAlignment = Enum.TextXAlignment.Left
 ThanksText.TextTransparency = 1
 ThanksText.Parent = MainFrame
 
--- Auto Bond фрейм
+-- Фрейм кнопки автофарма
 local AutoBondFrame = Instance.new("Frame")
 AutoBondFrame.Size = UDim2.new(1, -30, 0, 45)
 AutoBondFrame.Position = UDim2.new(0, 15, 0, 100)
@@ -80,7 +83,7 @@ AutoBondLabel.TextXAlignment = Enum.TextXAlignment.Left
 AutoBondLabel.TextTransparency = 1
 AutoBondLabel.Parent = AutoBondFrame
 
--- Кнопка (КРАСНАЯ)
+-- Кнопка активации (OFF/ON)
 local AutoBondButton = Instance.new("TextButton")
 AutoBondButton.Size = UDim2.new(0, 80, 0, 30)
 AutoBondButton.Position = UDim2.new(1, -95, 0, 7)
@@ -97,7 +100,7 @@ local ButtonCorner = Instance.new("UICorner")
 ButtonCorner.CornerRadius = UDim.new(0, 6)
 ButtonCorner.Parent = AutoBondButton
 
--- Статус
+-- Текст статуса фарма
 local StatusLabel = Instance.new("TextLabel")
 StatusLabel.Size = UDim2.new(1, -30, 0, 20)
 StatusLabel.Position = UDim2.new(0, 15, 0, 150)
@@ -110,39 +113,70 @@ StatusLabel.TextXAlignment = Enum.TextXAlignment.Left
 StatusLabel.TextTransparency = 1
 StatusLabel.Parent = MainFrame
 
--- АНИМАЦИЯ ИНТЕРФЕЙСА
-task.wait(0.5)
+-- === СИСТЕМНАЯ ПЛАВНАЯ ПРОВЕРКА ПЕРЕТАСКИВАНИЯ (DRAG-AND-DROP) ===
+local UserInputService = game:GetService("UserInputService")
+local dragging, dragInput, dragStart, startPos
 
+local function update(input)
+    local delta = input.Position - dragStart
+    MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+MainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
+        
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+MainFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        update(input)
+    end
+end)
+
+-- Ускоренная плавная анимация раскрытия меню
+task.wait(0.3)
 for i = 1, 20 do
     MainFrame.Size = UDim2.new(0, 300, 0, 60 + (i * 7))
-    task.wait(0.05)
+    task.wait(0.02)
 end
 
 for i = 1, 10 do
     Line.BackgroundTransparency = 1 - (i * 0.1)
-    task.wait(0.03)
-end
-
-for i = 1, 10 do
     ThanksText.TextTransparency = 1 - (i * 0.1)
-    task.wait(0.03)
-end
-
-for i = 1, 10 do
     AutoBondFrame.BackgroundTransparency = 1 - (i * 0.1)
     AutoBondLabel.TextTransparency = 1 - (i * 0.1)
     AutoBondButton.TextTransparency = 1 - (i * 0.1)
     StatusLabel.TextTransparency = 1 - (i * 0.1)
-    task.wait(0.03)
+    task.wait(0.02)
 end
 
--- === ОБНОВЛЕННАЯ ФУНКЦИЯ СБОРА БОНДОВ ===
+-- === УЛУЧШЕННАЯ ФУНКЦИЯ АВТОМАТИЧЕСКОГО СБОРА БОНДОВ И ТЕЛЕПОРТА ===
 local autoBondEnabled = false
 local player = game.Players.LocalPlayer
 local collected = 0
 
--- Ждем полную загрузку
 if not game:IsLoaded() then game.Loaded:Wait() end
+
+-- Проверка совпадения имени предмета с валютой в Dead Rails
+local function checkItemType(obj)
+    local n = obj.Name:lower()
+    return n:find("bond") or n:find("money") or n:find("cash") or n:find("bag") or n:find("valuable")
+end
 
 local function collectLoop()
     while autoBondEnabled do
@@ -150,104 +184,70 @@ local function collectLoop()
         local hrp = char and char:FindFirstChild("HumanoidRootPart")
         
         if hrp then
-            -- Перебираем объекты в Workspace целенаправленно
             for _, obj in pairs(workspace:GetDescendants()) do
                 if not autoBondEnabled then break end
                 
-                -- Проверка: имя объекта содержит "bond" или "money"
-                local nameLower = obj.Name:lower()
-                if nameLower:find("bond") or nameLower:find("money") then
-                    
-                    -- 1. Если это физическая часть (BasePart)
-                    if obj:IsA("BasePart") and not obj:IsDescendantOf(char) then
-                        pcall(function()
-                            -- Отключаем якорь, чтобы предмет мог перемещаться, и обнуляем скорость
-                            obj.Anchored = false
-                            obj.Velocity = Vector3.zero
-                            -- Телепортируем прямо в координаты игрока
-                            obj.CFrame = hrp.CFrame + Vector3.new(0, 1, 0)
+                -- Логика для комплексных моделей (мешки, сейфы, ценности)
+                if obj:IsA("Model") and checkItemType(obj) and not obj:IsDescendantOf(char) then
+                    pcall(function()
+                        local part = obj:FindFirstChild("PrimaryPart") or obj:FindFirstChildWhichIsA("BasePart")
+                        if part then
+                            -- Физический телепорт предмета к игроку
+                            part.Anchored = false
+                            if part:IsA("BasePart") then part.Velocity = Vector3.new(0,0,0) end
+                            part.CFrame = hrp.CFrame + Vector3.new(0, 0.5, 0)
                             
-                            -- Симулируем мгновенное физическое касание (Touch Interest)
-                            firetouchinterest(hrp, obj, 0)
-                            task.wait()
-                            firetouchinterest(hrp, obj, 1)
+                            -- Автоматический прожим клик-детекторов
+                            local clicker = obj:FindFirstChildOfClass("ClickDetector") or part:FindFirstChildOfClass("ClickDetector")
+                            if clicker and fireclickdetector then
+                                fireclickdetector(clicker, 1)
+                            end
+                            
+                            -- Прожим ProximityPrompt триггеров
+                            local prompt = obj:FindFirstChildOfClass("ProximityPrompt") or part:FindFirstChildOfClass("ProximityPrompt")
+                            if prompt and prompt.Enabled and fireproximityprompt then
+                                fireproximityprompt(prompt)
+                            end
                             
                             collected = collected + 1
-                            StatusLabel.Text = "Запущен | Собрано: " .. collected
-                        end)
-                    end
-                    
-                    -- 2. Если внутри модели/предмета есть триггеры взаимодействия
-                    -- Проверяем наличие ProximityPrompt
-                    local prompt = obj:FindFirstChildOfClass("ProximityPrompt") or (obj:IsA("ProximityPrompt") and obj)
-                    if prompt and prompt.Enabled then
-                        pcall(function()
-                            fireproximityprompt(prompt)
-                        end)
-                    end
-                    
-                    -- Проверяем наличие ClickDetector (часто используется в Dead Rails)
-                    local clicker = obj:FindFirstChildOfClass("ClickDetector") or (obj:IsA("ClickDetector") and obj)
-                    if clicker then
-                        pcall(function()
-                            fireclickdetector(clicker)
-                        end)
-                    end
-                    
-                    -- 3. Если это инструмент (Tool), лежащий на земле
-                    if obj:IsA("Tool") and obj.Parent == workspace then
-                        pcall(function()
-                            obj.Parent = player.Backpack
-                            collected = collected + 1
-                            StatusLabel.Text = "Запущен | Собрано: " .. collected
-                        end)
-                    end
-                    
+                            StatusLabel.Text = "Запущен | Найдено: " .. collected
+                        end
+                    end)
+                end
+                
+                -- Логика для одиночных базовых деталей на карте
+                if obj:IsA("BasePart") and checkItemType(obj) and not obj:IsDescendantOf(char) and obj.Parent == workspace then
+                    pcall(function()
+                        obj.Anchored = false
+                        obj.Velocity = Vector3.new(0,0,0)
+                        obj.CFrame = hrp.CFrame
+                        
+                        if fireclickdetector and obj:FindFirstChildOfClass("ClickDetector") then 
+                            fireclickdetector(obj:FindFirstChildOfClass("ClickDetector"), 1) 
+                        end
+                        if fireproximityprompt and obj:FindFirstChildOfClass("ProximityPrompt") then 
+                            fireproximityprompt(obj:FindFirstChildOfClass("ProximityPrompt")) 
+                        end
+                    end)
                 end
             end
         end
-        -- Оптимальная задержка, чтобы не крашить клиент частыми проверками
-        task.wait(0.5) 
+        task.wait(0.5) -- Оптимальная задержка для обработки триггеров
     end
 end
 
--- Кнопка переключения
+-- Обработчик кнопки включения/выключения
 AutoBondButton.MouseButton1Click:Connect(function()
     autoBondEnabled = not autoBondEnabled
     
     if autoBondEnabled then
         AutoBondButton.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
         AutoBondButton.Text = "ON"
-        StatusLabel.Text = "Запущен | Собрано: " .. collected
+        StatusLabel.Text = "Запущен | Найдено: " .. collected
         task.spawn(collectLoop)
     else
         AutoBondButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
         AutoBondButton.Text = "OFF"
-        StatusLabel.Text = "Остановлен | Собрано: " .. collected
-    end
-end)
-
--- Перетаскивание GUI
-local UIS = game:GetService("UserInputService")
-local drag, start, pos
-
-MainFrame.InputBegan:Connect(function(i)
-    if i.UserInputType == Enum.UserInputType.MouseButton1 then
-        drag = true
-        start = i.Position
-        pos = MainFrame.Position
-    end
-end)
-
-MainFrame.InputEnded:Connect(function(i)
-    if i.UserInputType == Enum.UserInputType.MouseButton1 then
-        drag = false
-    end
-end)
-
-UIS.InputChanged:Connect(function(i)
-    if drag and i.UserInputType == Enum.UserInputType.MouseMovement then
-        local d = i.Position - start
-        MainFrame.Position = UDim2.new(pos.X.Scale, pos.X.Offset + d.X, pos.Y.Scale, pos.Y.Offset + d.Y)
+        StatusLabel.Text = "Остановлен | Найдено: " .. collected
     end
 end)
