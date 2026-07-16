@@ -121,81 +121,18 @@ MainContent.Position = UDim2.new(0, 12, 0, 110)
 MainContent.BackgroundTransparency = 1
 MainContent.Parent = MainFrame
 
--- Функция 1
-local Function1Frame = Instance.new("Frame")
-Function1Frame.Size = UDim2.new(1, 0, 0, 30)
-Function1Frame.Position = UDim2.new(0, 0, 0, 0)
-Function1Frame.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
-Function1Frame.BorderSizePixel = 0
-Function1Frame.Parent = MainContent
-
-local Function1Corner = Instance.new("UICorner")
-Function1Corner.CornerRadius = UDim.new(0, 6)
-Function1Corner.Parent = Function1Frame
-
-local Function1Label = Instance.new("TextLabel")
-Function1Label.Size = UDim2.new(0.6, 0, 1, 0)
-Function1Label.Position = UDim2.new(0, 12, 0, 0)
-Function1Label.BackgroundTransparency = 1
-Function1Label.Text = "Auto Bond"
-Function1Label.TextColor3 = Color3.fromRGB(255, 255, 255)
-Function1Label.TextSize = 13
-Function1Label.Font = Enum.Font.GothamMedium
-Function1Label.TextXAlignment = Enum.TextXAlignment.Left
-Function1Label.Parent = Function1Frame
-
-local Function1Button = Instance.new("TextButton")
-Function1Button.Size = UDim2.new(0, 56, 0, 22)
-Function1Button.Position = UDim2.new(1, -64, 0.5, -11)
-Function1Button.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-Function1Button.BorderSizePixel = 0
-Function1Button.Text = "OFF"
-Function1Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-Function1Button.TextSize = 11
-Function1Button.Font = Enum.Font.GothamBold
-Function1Button.Parent = Function1Frame
-
-local Function1ButtonCorner = Instance.new("UICorner")
-Function1ButtonCorner.CornerRadius = UDim.new(0, 4)
-Function1ButtonCorner.Parent = Function1Button
-
--- Функция 2
-local Function2Frame = Instance.new("Frame")
-Function2Frame.Size = UDim2.new(1, 0, 0, 30)
-Function2Frame.Position = UDim2.new(0, 0, 0, 36)
-Function2Frame.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
-Function2Frame.BorderSizePixel = 0
-Function2Frame.Parent = MainContent
-
-local Function2Corner = Instance.new("UICorner")
-Function2Corner.CornerRadius = UDim.new(0, 6)
-Function2Corner.Parent = Function2Frame
-
-local Function2Label = Instance.new("TextLabel")
-Function2Label.Size = UDim2.new(0.6, 0, 1, 0)
-Function2Label.Position = UDim2.new(0, 12, 0, 0)
-Function2Label.BackgroundTransparency = 1
-Function2Label.Text = "Auto Farm"
-Function2Label.TextColor3 = Color3.fromRGB(255, 255, 255)
-Function2Label.TextSize = 13
-Function2Label.Font = Enum.Font.GothamMedium
-Function2Label.TextXAlignment = Enum.TextXAlignment.Left
-Function2Label.Parent = Function2Frame
-
-local Function2Button = Instance.new("TextButton")
-Function2Button.Size = UDim2.new(0, 56, 0, 22)
-Function2Button.Position = UDim2.new(1, -64, 0.5, -11)
-Function2Button.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-Function2Button.BorderSizePixel = 0
-Function2Button.Text = "OFF"
-Function2Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-Function2Button.TextSize = 11
-Function2Button.Font = Enum.Font.GothamBold
-Function2Button.Parent = Function2Frame
-
-local Function2ButtonCorner = Instance.new("UICorner")
-Function2ButtonCorner.CornerRadius = UDim.new(0, 4)
-Function2ButtonCorner.Parent = Function2Button
+-- Пустой текст в Main
+local MainEmpty = Instance.new("TextLabel")
+MainEmpty.Size = UDim2.new(1, 0, 0, 70)
+MainEmpty.Position = UDim2.new(0, 0, 0, 0)
+MainEmpty.BackgroundTransparency = 1
+MainEmpty.Text = "Скоро..."
+MainEmpty.TextColor3 = Color3.fromRGB(100, 100, 120)
+MainEmpty.TextSize = 12
+MainEmpty.Font = Enum.Font.GothamMedium
+MainEmpty.TextXAlignment = Enum.TextXAlignment.Center
+MainEmpty.TextYAlignment = Enum.TextYAlignment.Center
+MainEmpty.Parent = MainContent
 
 -- Контент Visual
 local VisualContent = Instance.new("Frame")
@@ -205,49 +142,18 @@ VisualContent.BackgroundTransparency = 1
 VisualContent.Visible = false
 VisualContent.Parent = MainFrame
 
-local VisualFunction1 = Instance.new("Frame")
-VisualFunction1.Size = UDim2.new(1, 0, 0, 30)
-VisualFunction1.Position = UDim2.new(0, 0, 0, 0)
-VisualFunction1.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
-VisualFunction1.BorderSizePixel = 0
-VisualFunction1.Parent = VisualContent
-
-local VisualCorner1 = Instance.new("UICorner")
-VisualCorner1.CornerRadius = UDim.new(0, 6)
-VisualCorner1.Parent = VisualFunction1
-
-local VisualLabel1 = Instance.new("TextLabel")
-VisualLabel1.Size = UDim2.new(1, -12, 0, 30)
-VisualLabel1.Position = UDim2.new(0, 12, 0, 0)
-VisualLabel1.BackgroundTransparency = 1
-VisualLabel1.Text = "ESP"
-VisualLabel1.TextColor3 = Color3.fromRGB(255, 255, 255)
-VisualLabel1.TextSize = 13
-VisualLabel1.Font = Enum.Font.GothamMedium
-VisualLabel1.TextXAlignment = Enum.TextXAlignment.Left
-VisualLabel1.Parent = VisualFunction1
-
-local VisualFunction2 = Instance.new("Frame")
-VisualFunction2.Size = UDim2.new(1, 0, 0, 30)
-VisualFunction2.Position = UDim2.new(0, 0, 0, 36)
-VisualFunction2.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
-VisualFunction2.BorderSizePixel = 0
-VisualFunction2.Parent = VisualContent
-
-local VisualCorner2 = Instance.new("UICorner")
-VisualCorner2.CornerRadius = UDim.new(0, 6)
-VisualCorner2.Parent = VisualFunction2
-
-local VisualLabel2 = Instance.new("TextLabel")
-VisualLabel2.Size = UDim2.new(1, -12, 0, 30)
-VisualLabel2.Position = UDim2.new(0, 12, 0, 0)
-VisualLabel2.BackgroundTransparency = 1
-VisualLabel2.Text = "Chams"
-VisualLabel2.TextColor3 = Color3.fromRGB(255, 255, 255)
-VisualLabel2.TextSize = 13
-VisualLabel2.Font = Enum.Font.GothamMedium
-VisualLabel2.TextXAlignment = Enum.TextXAlignment.Left
-VisualLabel2.Parent = VisualFunction2
+-- Пустой текст в Visual
+local VisualEmpty = Instance.new("TextLabel")
+VisualEmpty.Size = UDim2.new(1, 0, 0, 70)
+VisualEmpty.Position = UDim2.new(0, 0, 0, 0)
+VisualEmpty.BackgroundTransparency = 1
+VisualEmpty.Text = "Скоро..."
+VisualEmpty.TextColor3 = Color3.fromRGB(100, 100, 120)
+VisualEmpty.TextSize = 12
+VisualEmpty.Font = Enum.Font.GothamMedium
+VisualEmpty.TextXAlignment = Enum.TextXAlignment.Center
+VisualEmpty.TextYAlignment = Enum.TextYAlignment.Center
+VisualEmpty.Parent = VisualContent
 
 -- Анимация ширмы
 local isAnimating = false
@@ -307,7 +213,7 @@ VisualTab.MouseButton1Click:Connect(function()
     switchTab("Visual")
 end)
 
--- Перетаскивание (за заголовок)
+-- Перетаскивание за заголовок
 local dragging, dragStart, startPos
 
 Title.InputBegan:Connect(function(input)
